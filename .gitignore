@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# competition raw screenshots
+/docs/02-complete/raw/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

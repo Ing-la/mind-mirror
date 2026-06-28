@@ -1,0 +1,70 @@
+// ===== Data Models =====
+
+export type AvatarColor =
+  | 'cool'
+  | 'warm'
+  | 'green'
+  | 'yellow'
+  | 'purple'
+  | 'orange'
+  | 'teal'
+  | 'rose'
+  | 'indigo'
+
+export interface Voice {
+  id: string
+  name: string
+  soul: string
+  color: AvatarColor
+  brainId?: string // empty = use built-in default
+}
+
+export interface Brain {
+  id: string
+  name: string
+  type: 'builtin' | 'custom'
+  apiKey?: string
+  endpoint?: string
+  model?: string
+}
+
+export const BUILTIN_BRAIN: Brain = {
+  id: 'builtin-deepseek',
+  name: '心镜默认 (DeepSeek)',
+  type: 'builtin',
+}
+
+export const DEFAULT_BRAINS: Brain[] = [BUILTIN_BRAIN]
+
+export interface Message {
+  role: 'assistant' | 'user'
+  voiceId?: string
+  content: string
+  turn: number
+  timestamp: number
+}
+
+export interface Stage {
+  id: string
+  title?: string // auto-generated from background, for display
+  background: string
+  voices: Voice[]
+  stances: Record<string, string> // voiceId → 该角色在本次对话中的立场
+  messages: Message[]
+  status: 'ongoing' | 'ended'
+  createdAt: number
+}
+
+// ===== API Types =====
+
+export interface ChatRequest {
+  stage: Stage
+  voiceId: string
+  brain?: Brain
+}
+
+// ===== LocalStorage Keys =====
+
+export const STORAGE_KEY = 'mindmirror-stages'
+export const CUSTOM_VOICES_KEY = 'mindmirror-custom-voices'
+export const CUSTOM_BRAINS_KEY = 'mindmirror-custom-brains'
