@@ -1,0 +1,397 @@
+<div class="mindmirror-container">
+    
+    <!-- 顶栏区域 -->
+    <header class="mm-header">
+        <!-- 专为心镜设计的纯图形、无文字、手墨感返回按钮 -->
+        <a href="#" class="graphic-back-btn" aria-label="返回">
+            <svg viewBox="0 0 100 100" class="ink-arrow-svg">
+                <!-- 背景是一个不规则的手绘圆形印记 -->
+                <path d="M20,50 C15,30 35,15 55,20 C75,25 85,45 80,65 C75,85 50,85 30,75 C18,68 15,58 20,50 Z" class="arrow-bg" />
+                <!-- 粗糙的、带有利落尖锐感的手绘箭头笔触 -->
+                <path d="M65,50 L35,50 M50,32 L32,50 L50,68" class="arrow-stroke" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </header>
+
+    <!-- 舞台主体 -->
+    <main class="mm-workspace">
+        
+        <!-- ========================================== -->
+        <!-- 左侧/上方：心声刻面                         -->
+        <!-- ========================================== -->
+        <section class="mm-section">
+            <div class="mm-section-header">
+                <h2 class="mm-title">心声刻面</h2>
+                <button class="paper-action-btn">+ 刻录新心声</button>
+            </div>
+
+            <div class="paper-stack">
+                <!-- 手撕纸张质感卡片 01 -->
+                <div class="torn-paper-card voice-card tilt-left">
+                    <!-- 头像：粗粝不对称 -->
+                    <div class="avatar-wrapper">
+                        <svg viewBox="0 0 100 100" class="avatar-ink">
+                            <rect width="100" height="100" fill="#242b27"/>
+                            <path d="M15,25 L88,12 L82,88 L12,78 Z" fill="#cc665c"/>
+                            <path d="M30,50 C32,35 48,28 62,38 C70,45 68,65 52,62 Z" fill="#e6dfd3"/>
+                            <circle cx="50" cy="46" r="6" fill="#1e2421"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h3 class="card-title">大胆的我</h3>
+                        <p class="card-text">非常的勇敢，很爱老己。在关键时刻倾向于撕开伪装直接介入核心，不留退路。</p>
+                        <span class="card-tag">绑定：核心-01</span>
+                    </div>
+
+                    <div class="card-ctrls">
+                        <button class="text-icon-btn">编辑</button>
+                        <button class="text-icon-btn delete">抹除</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 右侧/下方：底层引擎                         -->
+        <!-- ========================================== -->
+        <section class="mm-section">
+            <div class="mm-section-header">
+                <h2 class="mm-title">底层引擎</h2>
+                <button class="paper-action-btn">+ 接驳新API</button>
+            </div>
+
+            <div class="paper-stack">
+                <!-- 引擎卡片 01 (内置) -->
+                <div class="torn-paper-card engine-card builtin tilt-right">
+                    <div class="engine-stamp">
+                        <div class="stamp-pattern"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="title-row">
+                            <h3 class="card-title">心镜默认 (DeepSeek)</h3>
+                            <span class="status-stamp">内置</span>
+                        </div>
+                        <p class="card-text text-muted">模型：deepseek-chat</p>
+                    </div>
+                    <div class="card-ctrls">
+                        <button class="stamp-test-btn">测试连通</button>
+                    </div>
+                </div>
+
+                <!-- 引擎卡片 02 (自定义) -->
+                <div class="torn-paper-card engine-card tilt-left-slight">
+                    <div class="engine-stamp custom">
+                        <div class="stamp-pattern"></div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">001 专线</h3>
+                        <p class="card-text text-muted">模型：deepseek-v4-flash</p>
+                    </div>
+                    <div class="card-ctrls">
+                        <button class="stamp-test-btn">测试连通</button>
+                        <button class="text-icon-btn">修改</button>
+                        <button class="text-icon-btn delete">断开</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<style>
+    /* ========================================== */
+    /* 核心艺术基调风格                             */
+    /* ========================================== */
+    :root {
+        --bg-theater: #354230;       /* 标志性的剧场深绿 */
+        --paper-white: #e6dfd3;      /* 粗粝手撕纸张白 */
+        --ink-dark: #1e241c;         /* 固体浓墨黑 */
+        --accent-red: #cc665c;       /* 情绪冲动红 */
+        --shadow-solid: #1c241a;     /* 物理叠层阴影 */
+    }
+
+    .mindmirror-container {
+        background-color: var(--bg-theater);
+        min-height: 100vh;
+        padding: 40px 5vw;
+        color: var(--paper-white);
+        font-family: 'PingFang SC', 'STHeiti', serif;
+        position: relative;
+    }
+
+    /* ========================================== */
+    /* 纯图形化“墨印”返回按钮                      */
+    /* ========================================== */
+    .mm-header {
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+    }
+
+    .graphic-back-btn {
+        width: 46px;
+        height: 46px;
+        display: inline-block;
+        transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .ink-arrow-svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* 手绘圆形墨印背景 */
+    .ink-arrow-svg .arrow-bg {
+        fill: rgba(230, 223, 211, 0.1);
+        stroke: var(--paper-white);
+        stroke-width: 1.5;
+        stroke-dasharray: 300;
+        transition: fill 0.2s, stroke 0.2s;
+    }
+
+    /* 手绘箭头线条 */
+    .ink-arrow-svg .arrow-stroke {
+        stroke: var(--paper-white);
+        stroke-width: 5;
+        fill: none;
+        transition: stroke 0.2s, transform 0.2s;
+    }
+
+    /* 按钮交互：纸张被狠狠盖章浸染的动效 */
+    .graphic-back-btn:hover {
+        transform: scale(1.08) rotate(-8deg);
+    }
+
+    .graphic-back-btn:hover .arrow-bg {
+        fill: var(--accent-red);
+        stroke: var(--accent-red);
+    }
+
+    .graphic-back-btn:hover .arrow-stroke {
+        stroke: var(--paper-white);
+        transform: translateX(-2px);
+    }
+
+    /* ========================================== */
+    /* 纸张剧场版面布局                            */
+    /* ========================================== */
+    .mm-workspace {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 保持优雅的左右拉扯双栏 */
+        gap: 60px;
+    }
+
+    @media (max-width: 900px) {
+        .mm-workspace { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    .mm-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 25px;
+        border-bottom: 2px stroke var(--paper-white);
+    }
+
+    .mm-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--paper-white);
+        margin: 0;
+        position: relative;
+    }
+
+    /* 撕裂感的物理动作按钮 */
+    .paper-action-btn {
+        background: transparent;
+        border: 1.5px solid var(--paper-white);
+        color: var(--paper-white);
+        padding: 4px 14px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .paper-action-btn:hover {
+        background: var(--paper-white);
+        color: var(--bg-theater);
+        box-shadow: -4px 4px 0px var(--accent-red);
+        transform: translate(2px, -2px);
+    }
+
+    /* ========================================== */
+    /* 手撕粗糙纸张卡片核心 (彻底告别现代圆角)        */
+    /* ========================================== */
+    .paper-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .torn-paper-card {
+        background-color: var(--paper-white);
+        color: var(--ink-dark);
+        padding: 24px;
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        
+        /* 核心密技：利用多重硬阴影以及微小的边框锯齿模拟手撕感 */
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 
+            5px 5px 0px var(--shadow-solid),
+            -1px 2px 0px rgba(0,0,0,0.05);
+        
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* 模拟自然摆放时的不对称物理倾斜 */
+    .torn-paper-card.tilt-left { transform: rotate(-1.2deg); }
+    .torn-paper-card.tilt-right { transform: rotate(0.8deg); }
+    .torn-paper-card.tilt-left-slight { transform: rotate(-0.5deg); }
+
+    .torn-paper-card:hover {
+        transform: scale(1.01) rotate(0deg) translateY(-2px);
+        box-shadow: 
+            8px 10px 0px var(--shadow-solid),
+            -2px 2px 0px rgba(0,0,0,0.1);
+    }
+
+    /* 内置卡片的边缘特殊红墨晕染标记 */
+    .torn-paper-card.builtin {
+        border-left: 4px solid var(--accent-red);
+    }
+
+    /* ========================================== */
+    /* 卡片内部组件：回归手写感细部                 */
+    /* ========================================== */
+    .avatar-wrapper {
+        width: 56px;
+        height: 56px;
+        flex-shrink: 0;
+        box-shadow: 2px 2px 0px var(--ink-dark);
+    }
+    .avatar-ink { width: 100%; height: 100%; }
+
+    /* 引擎专属的手工印章效果 */
+    .engine-stamp {
+        width: 44px;
+        height: 44px;
+        background: var(--ink-dark);
+        opacity: 0.85;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .engine-stamp .stamp-pattern {
+        width: 24px;
+        height: 24px;
+        background-image: radial-gradient(var(--paper-white) 2px, transparent 0);
+        background-size: 6px 6px;
+    }
+    .engine-stamp.custom {
+        background: var(--accent-red);
+    }
+
+    .card-body {
+        flex-grow: 1;
+    }
+
+    .card-title {
+        font-size: 1.15rem;
+        font-weight: 900;
+        margin: 0 0 6px 0;
+        color: var(--ink-dark);
+    }
+
+    .title-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 类似盖章盖上去的小标签 */
+    .status-stamp {
+        font-size: 0.7rem;
+        border: 1px solid var(--ink-dark);
+        padding: 0px 4px;
+        font-weight: bold;
+        transform: rotate(3deg);
+        display: inline-block;
+    }
+
+    .card-text {
+        font-size: 0.88rem;
+        line-height: 1.5;
+        margin: 0 0 12px 0;
+        color: rgba(30, 36, 28, 0.8);
+    }
+    .card-text.text-muted {
+        font-style: italic;
+        color: rgba(30, 36, 28, 0.55);
+    }
+
+    .card-tag {
+        font-size: 0.75rem;
+        font-weight: bold;
+        background: rgba(204, 102, 92, 0.15);
+        color: #aa443a;
+        padding: 2px 6px;
+    }
+
+    /* ========================================== */
+    /* 克制的控制纽扣                             */
+    /* ========================================== */
+    .card-ctrls {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .text-icon-btn {
+        background: transparent;
+        border: none;
+        color: var(--ink-dark);
+        font-size: 0.82rem;
+        font-weight: bold;
+        cursor: pointer;
+        opacity: 0.5;
+        padding: 2px;
+        transition: opacity 0.15s;
+        border-bottom: 1px transparent solid;
+    }
+    .text-icon-btn:hover {
+        opacity: 1;
+        border-bottom-color: var(--ink-dark);
+    }
+    .text-icon-btn.delete:hover {
+        color: var(--accent-red);
+        border-bottom-color: var(--accent-red);
+    }
+
+    /* 连通性测试：做成类似工厂复古质检章的按钮 */
+    .stamp-test-btn {
+        background: transparent;
+        border: 1px dashed var(--ink-dark);
+        color: var(--ink-dark);
+        padding: 3px 8px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .stamp-test-btn:hover {
+        background: var(--ink-dark);
+        color: var(--paper-white);
+        border-style: solid;
+    }
+</style>

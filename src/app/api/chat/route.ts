@@ -45,32 +45,43 @@ async function sendStream(stream: ReadableStream<Uint8Array>): Promise<Response>
   const decoder = new TextDecoder()
   const encoder = new TextEncoder()
 
-  const transformStream = new TransformStream({
+  const readable = new ReadableStream({
     async start(controller) {
       let buffer = ''
       try {
         while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
+          // 30 秒无数据则超时关闭（保底机制）
+          let timeoutId: ReturnType<typeof setTimeout> | undefined
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error('STREAM_TIMEOUT')), 30000)
+          })
+          try {
+            const read = reader.read()
+            const { done, value } = await Promise.race([read, timeoutPromise])
+            clearTimeout(timeoutId)
+            if (done) break
 
-          buffer += decoder.decode(value, { stream: true })
-          const lines = buffer.split('\n')
-          buffer = lines.pop() || ''
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || ''
 
-          for (const line of lines) {
-            const trimmed = line.trim()
-            if (!trimmed || trimmed === 'data: [DONE]') continue
-            if (!trimmed.startsWith('data: ')) continue
+            for (const line of lines) {
+              const trimmed = line.trim()
+              if (!trimmed || trimmed === 'data: [DONE]') continue
+              if (!trimmed.startsWith('data: ')) continue
 
-            try {
-              const json = JSON.parse(trimmed.slice(6))
-              const content = json.choices?.[0]?.delta?.content || ''
-              if (content) {
-                controller.enqueue(encoder.encode(content))
+              try {
+                const json = JSON.parse(trimmed.slice(6))
+                const content = json.choices?.[0]?.delta?.content || ''
+                if (content) {
+                  controller.enqueue(encoder.encode(content))
+                }
+              } catch {
+                // skip malformed JSON lines
               }
-            } catch {
-              // skip malformed JSON lines
             }
+          } finally {
+            clearTimeout(timeoutId)
           }
         }
         // Process remaining buffer
@@ -85,13 +96,20 @@ async function sendStream(stream: ReadableStream<Uint8Array>): Promise<Response>
             // skip
           }
         }
+      } catch (err) {
+        if ((err as Error).message === 'STREAM_TIMEOUT') {
+          console.log('sendStream: stream timeout, closing gracefully')
+        } else {
+          console.error('sendStream error:', err)
+        }
       } finally {
+        try { controller.close() } catch { /* ignore */ }
         reader.releaseLock()
       }
     },
   })
 
-  return new Response(transformStream.readable, {
+  return new Response(readable, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'no-cache',

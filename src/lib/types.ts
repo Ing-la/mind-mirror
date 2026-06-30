@@ -52,6 +52,8 @@ export interface Stage {
   stances: Record<string, string> // voiceId → 该角色在本次对话中的立场
   messages: Message[]
   status: 'ongoing' | 'ended'
+  act: number       // 当前幕次（从 1 开始）
+  actMsgCount: number // 当前幕已完成的消息数（0-6）
   createdAt: number
 }
 

@@ -37,9 +37,11 @@ function buildMessages(
       msgs.push({ role: 'user', content: `（用户插话）${m.content}` })
     } else if (m.role === 'assistant' && m.voiceId) {
       const speaker = stage.voices.find((v) => v.id === m.voiceId)
+      const label = `${speaker ? speaker.name : '某人'}说：${m.content}`
+      // 对方发言 → user（当前角色需要回应），自己之前发言 → assistant
       msgs.push({
-        role: 'assistant',
-        content: `${speaker ? speaker.name : '某人'}：${m.content}`,
+        role: m.voiceId === voice.id ? 'assistant' : 'user',
+        content: label,
       })
     }
   }

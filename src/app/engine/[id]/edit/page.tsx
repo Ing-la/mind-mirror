@@ -110,43 +110,44 @@ export default function EditEnginePage() {
 
   if (!loaded) {
     return (
+      <div className="redesign-root h-dvh flex flex-col">
+      <div className="bg-title">MIND MIRROR</div>
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-sm text-[var(--text-dim)]">加载中...</p>
+        <p className="text-sm text-[rgba(230,223,211,0.35)]">加载中...</p>
+      </div>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="h-1 bg-gradient-to-r from-[var(--warm)] via-[var(--pink)] via-[var(--blue)] to-[var(--green)] opacity-60" />
+    <div className="redesign-root h-dvh flex flex-col">
+      <div className="bg-title">MIND MIRROR</div>
+    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
 
       <div className="max-w-xl mx-auto w-full px-6 pb-20">
         <button onClick={() => router.push('/voices')}
-          className="mt-6 flex items-center gap-2 text-sm text-[var(--text-soft)] hover:text-[var(--text)] transition-colors">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          返回
+          className="torn-back-btn" title="返回">
+          ← 返回
         </button>
 
-        <h1 className="text-2xl font-bold text-[var(--text)] mt-8">编辑引擎</h1>
-        <p className="text-sm text-[var(--text-soft)] mt-1">修改引擎配置</p>
+        <h1 className="text-2xl font-bold text-[#e6dfd3] mt-8">编辑引擎</h1>
+        <p className="text-sm text-[rgba(230,223,211,0.6)] mt-1">修改引擎配置</p>
 
         {/* Presets */}
         <div className="mt-8">
-          <label className="block text-sm font-medium text-[var(--text-soft)] mb-3">选择预设</label>
+          <label className="block text-sm font-medium text-[rgba(230,223,211,0.6)] mb-3">选择预设</label>
           <div className="flex gap-2 flex-wrap">
             {ENGINE_PRESET_KEYS.map((key) => {
               const p = ENGINE_PRESETS[key]
               return (
                 <button key={key} onClick={() => applyPreset(key)}
-                  className={`px-4 py-2 rounded-xl border text-sm transition-all ${selectedPreset === key ? 'border-[var(--warm)] bg-[var(--warm-light)] text-[var(--warm)] font-medium' : 'border-[var(--line)] text-[var(--text-soft)] hover:border-[var(--warm-soft)]'}`}>
+                  className={`px-4 py-2 rounded-xl border text-sm transition-all ${selectedPreset === key ? 'border-[#cc665c] bg-[rgba(204,102,92,0.15)] text-[#e6dfd3] font-medium' : 'border-[rgba(230,223,211,0.15)] text-[rgba(230,223,211,0.6)] hover:border-[#cc665c]'}`}>
                   {p.name}
                 </button>
               )
             })}
             <button onClick={() => applyPreset('custom')}
-              className={`px-4 py-2 rounded-xl border text-sm transition-all ${selectedPreset === null ? 'border-[var(--warm)] bg-[var(--warm-light)] text-[var(--warm)] font-medium' : 'border-[var(--line)] text-[var(--text-soft)] hover:border-[var(--warm-soft)]'}`}>
+              className={`px-4 py-2 rounded-xl border text-sm transition-all ${selectedPreset === null ? 'border-[#cc665c] bg-[rgba(204,102,92,0.15)] text-[#e6dfd3] font-medium' : 'border-[rgba(230,223,211,0.15)] text-[rgba(230,223,211,0.6)] hover:border-[#cc665c]'}`}>
               自定义
             </button>
           </div>
@@ -154,48 +155,48 @@ export default function EditEnginePage() {
 
         <div className="mt-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-soft)] mb-2">名称 *</label>
+            <label className="block text-sm font-medium text-[rgba(230,223,211,0.6)] mb-2">名称 *</label>
             <input type="text" value={name} onChange={(e) => validateName(e.target.value)}
-              className={`w-full px-4 py-3 rounded-xl bg-[var(--card)] border text-[var(--text)] placeholder:text-[var(--text-dim)] focus:outline-none focus:ring-1 transition-colors ${nameError ? 'border-[var(--pink)] focus:border-[var(--pink)] focus:ring-[var(--pink)]' : 'border-[var(--line)] focus:border-[var(--warm)] focus:ring-[var(--warm)]'}`} />
-            {nameError && <p className="text-xs text-[var(--pink)] mt-1.5">{nameError}</p>}
+              className={`w-full px-4 py-3 rounded-xl bg-[rgba(230,223,211,0.08)] border text-[#e6dfd3] placeholder:text-[rgba(230,223,211,0.35)] focus:outline-none focus:ring-1 transition-colors ${nameError ? 'border-[#cc665c] focus:border-[#cc665c] focus:ring-[#cc665c]' : 'border-[rgba(230,223,211,0.15)] focus:border-[#cc665c] focus:ring-[#cc665c]'}`} />
+            {nameError && <p className="text-xs text-[#cc665c] mt-1.5">{nameError}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-soft)] mb-2">API 地址</label>
+            <label className="block text-sm font-medium text-[rgba(230,223,211,0.6)] mb-2">API 地址</label>
             <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-[var(--text)] placeholder:text-[var(--text-dim)] focus:outline-none focus:border-[var(--warm)] focus:ring-1 focus:ring-[var(--warm)] transition-colors" />
+              className="w-full px-4 py-3 rounded-xl bg-[rgba(230,223,211,0.08)] border border-[rgba(230,223,211,0.15)] text-[#e6dfd3] placeholder:text-[rgba(230,223,211,0.35)] focus:outline-none focus:border-[#cc665c] focus:ring-1 focus:ring-[#cc665c] transition-colors" />
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-[var(--text-soft)]">API Key *</label>
+              <label className="text-sm font-medium text-[rgba(230,223,211,0.6)]">API Key *</label>
               {apiKeyUrl && (
                 <a href={apiKeyUrl} target="_blank" rel="noopener noreferrer"
-                  className="text-xs text-[var(--warm)] hover:underline">
+                  className="text-xs text-[#cc665c] hover:underline">
                   获取 Key
                 </a>
               )}
             </div>
             <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-[var(--text)] placeholder:text-[var(--text-dim)] focus:outline-none focus:border-[var(--warm)] focus:ring-1 focus:ring-[var(--warm)] transition-colors" />
+              className="w-full px-4 py-3 rounded-xl bg-[rgba(230,223,211,0.08)] border border-[rgba(230,223,211,0.15)] text-[#e6dfd3] placeholder:text-[rgba(230,223,211,0.35)] focus:outline-none focus:border-[#cc665c] focus:ring-1 focus:ring-[#cc665c] transition-colors" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-soft)] mb-2">模型</label>
+            <label className="block text-sm font-medium text-[rgba(230,223,211,0.6)] mb-2">模型</label>
             <input type="text" value={model} onChange={(e) => setModel(e.target.value)}
               placeholder="deepseek-v4-flash"
-              className="w-full px-4 py-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-[var(--text)] placeholder:text-[var(--text-dim)] focus:outline-none focus:border-[var(--warm)] focus:ring-1 focus:ring-[var(--warm)] transition-colors" />
+              className="w-full px-4 py-3 rounded-xl bg-[rgba(230,223,211,0.08)] border border-[rgba(230,223,211,0.15)] text-[#e6dfd3] placeholder:text-[rgba(230,223,211,0.35)] focus:outline-none focus:border-[#cc665c] focus:ring-1 focus:ring-[#cc665c] transition-colors" />
           </div>
 
           {/* Test */}
           <div className="flex items-center gap-3 pt-1">
             <TestDot state={testDot} />
             <button onClick={testEngine} disabled={!apiKey.trim()}
-              className="px-5 py-2.5 rounded-xl border border-[var(--line)] text-sm text-[var(--text-soft)] hover:bg-[var(--warm-light)] hover:border-[var(--warm-soft)] disabled:opacity-40 transition-colors">
+              className="px-5 py-2.5 rounded-xl border border-[rgba(230,223,211,0.15)] text-sm text-[rgba(230,223,211,0.6)] hover:bg-[rgba(204,102,92,0.15)] hover:border-[#cc665c] disabled:opacity-40 transition-colors">
               测试连接
             </button>
           </div>
         </div>
 
         <button onClick={handleSave} disabled={!canSave}
-          className="w-full mt-8 py-4 rounded-2xl bg-[var(--text)] text-white text-lg font-medium disabled:opacity-30 hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+          className="w-full mt-8 py-4 rounded-2xl bg-[#e6dfd3] text-[#354230] text-lg font-medium disabled:opacity-30 hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
             <polyline points="17 21 17 13 7 13 7 21" />
@@ -204,6 +205,7 @@ export default function EditEnginePage() {
           保存修改
         </button>
       </div>
+    </div>
     </div>
   )
 }

@@ -1,6 +1,24 @@
 @import "tailwindcss";
 
-:root {
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #354230;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.8;
+}
+
+/* =============================================
+   旧版 UI (classic) — CSS 变量
+   ============================================= */
+.classic-root {
   --bg: #faf8f5;
   --card: #ffffff;
   --text: #3b3630;
@@ -21,20 +39,101 @@
   --shadow: 0 4px 20px rgba(59, 54, 48, 0.06);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
+.classic-root {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
-    "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.8;
+  min-height: 100vh;
 }
 
-/* ===== Animation ===== */
+/* =============================================
+   重构版 UI (redesign) — 暗调画布
+   ============================================= */
+.redesign-root {
+  --bg-canvas: #354230;
+  --color-冲动: #cc665c;
+  --color-理性: #1e2421;
+  --color-记忆: #e6dfd3;
+}
+
+.redesign-root {
+  background-color: var(--bg-canvas);
+  color: var(--color-记忆);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 谷物纹理叠加层 */
+.redesign-root::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='rf'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23rf)'/%3E%3C/svg%3E");
+}
+
+/* 品牌标签 (心镜 / MIND MIRROR) — 首页 & 子页面共用 */
+.home-redesign .brand-patch,
+.redesign-root .brand-patch {
+  position:absolute; top:35px; left:40px; z-index:100; cursor:pointer;
+  transform:rotate(-3deg); transition:transform .3s;
+}
+.home-redesign .brand-patch:hover,
+.redesign-root .brand-patch:hover { transform:rotate(-1deg) scale(1.05); }
+.home-redesign .brand-patch-bg,
+.redesign-root .brand-patch-bg {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:var(--color-记忆); filter:url(#torn-heavy);
+  box-shadow:3px 3px 0 rgba(0,0,0,.3); z-index:1;
+}
+.home-redesign .brand-patch-content,
+.redesign-root .brand-patch-content {
+  position:relative; z-index:2; padding:10px 20px;
+  color:var(--color-理性); filter:url(#torn-medium);
+}
+.home-redesign .brand-patch h1,
+.redesign-root .brand-patch h1 { font-size:1.34rem; font-weight:900; line-height:1; letter-spacing:1px; }
+.home-redesign .brand-patch span,
+.redesign-root .brand-patch span { font-size:.59rem; font-weight:700; letter-spacing:2px; display:block; margin-top:3px; opacity:.6; }
+
+/* 背景水印 MIND MIRROR — 首页 & 子页面共用 */
+.home-redesign .bg-title,
+.redesign-root .bg-title {
+  font-size:22vw; font-weight:900;
+  color:rgba(0,0,0,0.06); line-height:1; pointer-events:none;
+  white-space:nowrap; letter-spacing:-10px;
+  position:absolute; z-index:1;
+}
+.home-redesign .bg-title {
+  /* 首页: 靠父级 flex 居中 */
+  transform:rotate(-8deg);
+}
+.redesign-root .bg-title {
+  /* 子页面: 用定位居中 */
+  top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(-8deg);
+}
+
+/* =============================================
+   撕裂风格返回按钮（子页面共用）
+   ============================================= */
+.torn-back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .82rem; font-weight: 700; letter-spacing: 1px;
+  color: #354230; background: #e6dfd3;
+  padding: 7px 18px 7px 14px; margin-top: 24px;
+  cursor: pointer; border: none; outline: none;
+  filter: url(#torn-title);
+  transition: filter 0.3s;
+}
+.torn-back-btn:hover {
+  filter: url(#torn-heavy);
+}
+
+/* =============================================
+   通用动画（两套 UI 共用）
+   ============================================= */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -50,27 +149,6 @@ body {
   50% { opacity: 0.4; }
 }
 
-/* Gentle floating — for the little spirits on the homepage */
-@keyframes floatGentle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-@keyframes floatGentle2 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes floatGentle3 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-9px); }
-}
-
-@keyframes breathe {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.03); }
-}
-
 @keyframes softRise {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -84,37 +162,14 @@ body {
   animation: chatIn 0.5s ease backwards;
 }
 
-.animate-float-1 {
-  animation: floatGentle 4.5s ease-in-out infinite;
-}
-
-.animate-float-2 {
-  animation: floatGentle2 5.2s ease-in-out infinite;
-}
-
-.animate-float-3 {
-  animation: floatGentle3 3.8s ease-in-out infinite;
-}
-
-.animate-breathe {
-  animation: breathe 3s ease-in-out infinite;
-}
-
 .animate-soft-rise {
   animation: softRise 0.8s ease backwards;
 }
 
-/* ===== Scrollbar ===== */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--line);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dim);
-}
+/* =============================================
+   通用滚动条
+   ============================================= */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(230,223,211,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(230,223,211,0.3); }

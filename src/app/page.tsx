@@ -1,221 +1,307 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getStages, deleteStage } from '@/lib/store'
-import { Stage } from '@/lib/types'
-import Avatar from '@/components/Avatar'
 
 export default function HomePage() {
   const router = useRouter()
-  const [stages, setStages] = useState<Stage[]>([])
-  const [loaded, setLoaded] = useState(false)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const hostsRef = useRef<(HTMLDivElement | null)[]>([])
+  const brandRef = useRef<HTMLDivElement>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [recordsList, setRecordsList] = useState<Array<{id:string;title:string;badge:string;date:string;count:number}>>([])
 
   useEffect(() => {
-    setStages(getStages())
-    setLoaded(true)
+    if (!showHistory) return
+    const stages = getStages()
+    setRecordsList(stages
+      .filter(s => s.status === 'ended' || s.messages.length > 0)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map(s => ({
+        id: s.id,
+        title: s.title || s.background || '未命名对话',
+        badge: s.voices.map(v => v.name).join(' · '),
+        date: new Date(s.createdAt).toLocaleDateString('zh-CN'),
+        count: s.messages.length,
+      }))
+    )
+  }, [showHistory])
 
-    const handle = () => {
-      setStages(getStages())
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    const hosts = hostsRef.current.filter(Boolean) as HTMLDivElement[]
+    const brand = brandRef.current
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const X = (e.clientX - window.innerWidth / 2) / 120
+      const Y = (e.clientY - window.innerHeight / 2) / 120
+
+      if (hosts[0]) hosts[0].style.transform = `translate(${X * 1.2}px, ${Y * 1.2}px)`
+      if (hosts[1]) hosts[1].style.transform = `translate(${X * -0.8}px, ${Y * -1.5}px)`
+      if (hosts[2]) hosts[2].style.transform = `translate(${X * 0.4}px, ${Y * 0.6}px)`
+      if (brand) brand.style.transform = `translate(${X * -0.2}px, ${Y * -0.2}px) rotate(-3deg)`
     }
-    window.addEventListener('storage', handle)
-    return () => window.removeEventListener('storage', handle)
+
+    const handleMouseLeave = () => {
+      hosts.forEach(h => { if (h) h.style.transform = '' })
+      if (brand) brand.style.transform = 'rotate(-3deg)'
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    stage.addEventListener('mouseleave', handleMouseLeave)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      stage.removeEventListener('mouseleave', handleMouseLeave)
+    }
   }, [])
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (confirm('确定删除这段对话？')) {
-      deleteStage(id)
-      setStages(getStages())
-    }
-  }
-
-  const statusLabel = (s: Stage) => (s.status === 'ongoing' ? '进行中' : '已结束')
-  const statusColor = (s: Stage) =>
-    s.status === 'ongoing' ? 'bg-[var(--warm)] text-white' : 'bg-[var(--line)] text-[var(--text-dim)]'
-
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="h-1 bg-gradient-to-r from-[var(--warm)] via-[var(--pink)] via-[var(--blue)] to-[var(--green)] opacity-60" />
+    <>
+      <style>{`
+        .home-redesign {
+          --bg-canvas: #354230;
+          --color-冲动: #cc665c;
+          --color-理性: #1e2421;
+          --color-记忆: #e6dfd3;
+        }
+        .home-redesign * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+        .home-redesign {
+          background:var(--bg-canvas); min-height:100vh; overflow:hidden;
+          font-family:'PingFang SC','Hiragino Sans GB',sans-serif;
+          position:relative; display:flex; justify-content:center; align-items:center;
+        }
 
-      <div className="max-w-2xl mx-auto w-full px-6 pb-20">
-        {/* ── Hero ── */}
-        <section className="relative pt-12 pb-6 text-center overflow-hidden">
-          {/* 背景柔光 */}
-          <div
-            className="absolute inset-0 -top-20 pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(ellipse at 50% 30%, rgba(232,196,160,0.15) 0%, transparent 70%)',
-            }}
-          />
+        .home-redesign .mindscape-stage {
+          position:relative; width:90vw; height:85vh; max-width:1400px;
+          display:grid; grid-template-columns:repeat(12,1fr); grid-template-rows:repeat(12,1fr); z-index:10;
+        }
+        .home-redesign .motion-host {
+          position:relative; width:100%; height:100%;
+          transition:transform .6s cubic-bezier(.16,1,.3,1); will-change:transform; cursor:pointer;
+        }
+        .home-redesign .art-bg {
+          position:absolute; top:0; left:0; width:100%; height:100%;
+          filter:url(#torn-heavy); z-index:1; backface-visibility:hidden;
+        }
+        .home-redesign .art-content {
+          position:relative; z-index:2; width:100%; height:100%;
+          display:flex; flex-direction:column;
+        }
+        .home-redesign .host-summon { grid-area:2/1/10/8; z-index:5; }
+        .home-redesign .skin-summon-bg {
+          background:var(--color-冲动); clip-path:polygon(0% 14%,100% 0%,86% 100%,4% 88%);
+          mix-blend-mode:multiply; transition:clip-path .4s;
+        }
+        .home-redesign .host-summon:hover .skin-summon-bg { clip-path:polygon(0% 5%,96% 0%,91% 100%,8% 93%); }
+        .home-redesign .host-summon .art-content { padding:12% 14% 10% 10%; color:var(--color-记忆); }
+        .home-redesign .host-manage { grid-area:1/7/7/13; z-index:4; }
+        .home-redesign .skin-manage-bg {
+          background:var(--color-理性); clip-path:polygon(8% 0%,100% 9%,91% 91%,0% 81%);
+          transition:background-color .4s;
+        }
+        .home-redesign .host-manage:hover .skin-manage-bg { background:#151917; }
+        .home-redesign .host-manage .art-content { padding:10% 10% 10% 15%; color:#8da499; }
+        .home-redesign .host-history { grid-area:7/5/13/12; z-index:3; }
+        .home-redesign .skin-history-bg {
+          background:var(--color-记忆); clip-path:polygon(2% 7%,98% 0%,100% 88%,0% 98%);
+        }
+        .home-redesign .host-history .art-content { padding:4% 8% 6% 22%; color:#333; justify-content:space-between; }
+        .home-redesign .action-title {
+          font-size:calc(1.34rem + 1vw); font-weight:900; letter-spacing:-1px; margin-bottom:14px;
+          display:flex; align-items:center; justify-content:space-between; filter:url(#torn-title);
+        }
+        .home-redesign .action-title span { font-size:2.9vw; opacity:.15; font-family:serif; filter:none; }
+        .home-redesign .action-desc { font-size:.88rem; line-height:1.75; font-weight:400; filter:url(#torn-light); }
+        .home-redesign .host-history .action-title { color:#1a1a1a; margin-bottom:8px; display:flex; justify-content:center; align-items:center; position:relative; }
+        .home-redesign .host-history .action-title span { position:absolute; right:0; top:50%; transform:translateY(-50%); font-size:3.35vw; opacity:.2; line-height:0.8; }
+        .home-redesign .history-stack-container { position:relative; width:100%; height:165px; margin-top:10px; }
+        .home-redesign .paper-layer { position:absolute; width:100%; height:100%; transition:all .4s cubic-bezier(.16,1,.3,1); }
+        .home-redesign .paper-layer-bg { position:absolute; top:0; left:0; width:100%; height:100%; filter:url(#torn-heavy); z-index:1; border:1px solid rgba(0,0,0,.05); }
+        .home-redesign .paper-layer-content { position:relative; z-index:2; width:100%; height:100%; padding:20px 24px; filter:url(#torn-light); overflow:hidden; }
+        .home-redesign .layer-1 .paper-layer-bg { background:#fff; box-shadow:5px 5px 15px rgba(0,0,0,.05); }
+        .home-redesign .layer-1 { transform:rotate(-1deg); z-index:3; }
+        .home-redesign .layer-2 .paper-layer-bg { background:#eae4d8; }
+        .home-redesign .layer-2 { transform:rotate(2deg) translate(5px,6px); z-index:2; }
+        .home-redesign .layer-3 .paper-layer-bg { background:#dfd7c8; }
+        .home-redesign .layer-3 { transform:rotate(-3deg) translate(-4px,12px); z-index:1; }
+        .home-redesign .host-history:hover .layer-1 { transform:rotate(-2.5deg) translate(-2px,-8px); }
+        .home-redesign .host-history:hover .layer-2 { transform:rotate(4deg) translate(12px,10px); }
+        .home-redesign .host-history:hover .layer-3 { transform:rotate(-5deg) translate(-10px,22px); }
+        .home-redesign .layer-1 h4 { font-size:.96rem; color:#111; margin-bottom:6px; font-weight:800; line-height:1.5; }
+        .home-redesign .layer-1 p { font-size:.75rem; color:#556; line-height:1.6; font-weight:400; }
+        .home-redesign .latest-badge { display:inline-block; font-size:.59rem; background:var(--color-冲动); color:#fff; padding:2px 6px; margin-bottom:6px; font-weight:bold; }
+        .home-redesign .stack-meta { margin-top:10px; font-size:.67rem; color:#888; }
+        .home-redesign .tape-more-btn { position:absolute; bottom:22px; right:35px; z-index:100; cursor:pointer; transform:rotate(-4deg); transition:all .3s; pointer-events:none; }
+        .home-redesign .tape-btn-bg { position:absolute; top:0; left:0; width:100%; height:100%; background:#bfa37a; filter:url(#torn-heavy); box-shadow:3px 3px 0 rgba(0,0,0,.15); z-index:1; }
+        .home-redesign .tape-btn-content { position:relative; z-index:2; color:#1e2421; font-size:.71rem; font-weight:700; padding:6px 20px; white-space:nowrap; filter:url(#torn-medium); }
+        .home-redesign .host-history:hover .tape-more-btn { transform:rotate(-1deg) scale(1.05); }
+        .home-redesign .host-history:hover .tape-btn-bg { background:var(--color-冲动); }
+        .home-redesign .host-history:hover .tape-btn-content { color:#fff; }
+        .home-redesign .floating-poetry { position:absolute; bottom:40px; left:45px; color:rgba(230,223,211,.55); font-size:.79rem; font-weight:300; writing-mode:vertical-rl; letter-spacing:5px; z-index:2; line-height:1.8; }
+        /* Modal styles */
+        .modal-overlay {
+          position:fixed; inset:0; z-index:9999;
+          background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+          display:flex; justify-content:center; align-items:center;
+          animation:fadeIn .3s ease;
+        }
+        .modal-overlay .modal-panel {
+          position:relative; width:min(75vw,700px); max-height:80vh;
+          background:var(--color-记忆); filter:url(#torn-modal); padding:4px;
+          animation:scaleIn .35s cubic-bezier(.16,1,.3,1);
+        }
+        .modal-overlay .modal-inner {
+          background:var(--color-记忆); padding:28px 32px;
+          max-height:calc(80vh - 8px); overflow-y:auto;
+        }
+        .modal-overlay .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-overlay .modal-header h2 { font-size:1.3rem; font-weight:900; color:var(--color-理性); letter-spacing:-1px; filter:url(#torn-modal-title); }
+        .modal-overlay .modal-close {
+          background:var(--color-冲动); color:#fff; border:none; cursor:pointer;
+          font-size:1rem; padding:4px 12px; font-weight:700; filter:url(#torn-light);
+          transition:transform .3s;
+        }
+        .modal-overlay .modal-close:hover { transform:scale(1.1); }
+        .modal-overlay .record-item {
+          display:flex; justify-content:space-between; align-items:center;
+          padding:12px 14px; margin-bottom:8px; background:rgba(0,0,0,.03);
+          border-left:3px solid var(--color-冲动); transition:background .2s;
+        }
+        .modal-overlay .record-item:hover { background:rgba(0,0,0,.06); }
+        .modal-overlay .record-info { flex:1; min-width:0; }
+        .modal-overlay .record-info h4 { font-size:.85rem; font-weight:700; color:#222; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; filter:url(#torn-modal-text); }
+        .modal-overlay .record-info .record-meta { font-size:.6rem; color:#777; display:flex; gap:10px; filter:url(#torn-modal-text); }
+        .modal-overlay .record-info .record-meta span { background:rgba(0,0,0,.04); padding:1px 6px; }
+        .modal-overlay .record-del-btn {
+          flex-shrink:0; margin-left:12px;
+          background:transparent; border:1px solid rgba(204,102,92,.3); color:var(--color-冲动);
+          font-size:.6rem; padding:4px 10px; cursor:pointer; font-weight:600;
+          transition:all .2s; filter:url(#torn-modal-text);
+        }
+        .modal-overlay .record-del-btn:hover { background:var(--color-冲动); color:#fff; }
+        .modal-overlay .empty-msg { text-align:center; padding:40px 0; color:#999; font-size:.85rem; font-style:italic; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(.9) rotate(-2deg); } to { opacity:1; transform:scale(1) rotate(0); } }
+      `}</style>
 
-          {/* 小精灵们 */}
-          <div className="relative flex items-end justify-center gap-5 sm:gap-7 mb-7">
-            {/* 左侧精灵 — 粉色·梦幻 */}
-            <div className="animate-float-1" style={{ animationDelay: '0s' }}>
-              <div className="relative">
-                <Avatar color="rose" size={44} name="温柔" className="drop-shadow-sm" />
-                {/* 小装饰点 */}
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--pink)] opacity-40" />
-              </div>
-            </div>
+      <div className="home-redesign">
+        <div className="bg-title">MIND MIRROR</div>
 
-            {/* 中心精灵 — 暖色·开心 (略大) */}
-            <div className="animate-float-2 -mb-1" style={{ animationDelay: '0.6s' }}>
-              <div className="relative">
-                <Avatar color="warm" size={56} name="暖心" className="drop-shadow-md" />
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--warm)] opacity-50" />
-              </div>
-            </div>
+        <div className="brand-patch" ref={brandRef} onClick={() => window.location.reload()}>
+          <div className="brand-patch-bg" />
+          <div className="brand-patch-content">
+            <h1>心镜</h1>
+            <span>MIND MIRROR</span>
+          </div>
+        </div>
 
-            {/* 右侧精灵 — 蓝色·平静 */}
-            <div className="animate-float-3" style={{ animationDelay: '1.2s' }}>
-              <div className="relative">
-                <Avatar color="cool" size={44} name="冷静" className="drop-shadow-sm" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--blue)] opacity-40" />
-              </div>
+        <div className="floating-poetry">脑海里有一支不愿安静的合唱团 / 走上舞台</div>
+
+        <main className="mindscape-stage" ref={stageRef}>
+          <div className="motion-host host-summon" ref={el => { hostsRef.current[0] = el }}>
+            <div className="art-bg skin-summon-bg" />
+            <div className="art-content" onClick={() => router.push('/stage/new')}>
+              <h2 className="action-title">召唤心声 <span>01.</span></h2>
+              <p className="action-desc">把脑袋里的小人拽出来，看它们好好吵一架。不求正确的解法，只要在这场原始的、粗糙的内心博弈中，看清被情绪掩盖的自我。</p>
             </div>
           </div>
 
-          {/* 品牌 */}
-          <div className="animate-soft-rise" style={{ animationDelay: '0.2s' }}>
-            <h1 className="text-[2.75rem] sm:text-6xl font-extrabold text-[var(--text)] tracking-tight leading-tight">
-              心镜
-            </h1>
-            <p className="text-sm sm:text-base font-light text-[var(--text-dim)] tracking-[0.4em] mt-1">
-              MindMirror
-            </p>
-          </div>
-
-          {/* 标语 */}
-          <p className="mt-5 text-base sm:text-lg text-[var(--text-soft)] leading-relaxed max-w-xs mx-auto animate-soft-rise" style={{ animationDelay: '0.4s' }}>
-            把脑袋里的小人具像化
-          </p>
-          <p className="text-base sm:text-lg text-[var(--text-soft)] leading-relaxed animate-soft-rise" style={{ animationDelay: '0.5s' }}>
-            不给你答案，陪你
-            <span className="text-[var(--pink)] font-medium">听听内心的声音</span>
-          </p>
-
-          {/* ── 按钮 ── */}
-          <div className="mt-10 flex flex-col items-center gap-4 animate-soft-rise" style={{ animationDelay: '0.6s' }}>
-            <button
-              onClick={() => router.push('/stage/new')}
-              className="group relative w-full sm:w-auto px-10 py-4 rounded-full
-                bg-gradient-to-b from-[var(--warm)] to-[#dbb090]
-                text-white font-semibold text-base
-                shadow-[0_4px_14px_rgba(232,196,160,0.3)]
-                hover:shadow-[0_6px_20px_rgba(232,196,160,0.4)]
-                hover:-translate-y-0.5
-                transition-all duration-300"
-            >
-              {/* 纸感顶部高光线 */}
-              <span className="absolute inset-x-6 top-0 h-px bg-white/25 rounded-full" />
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20 shrink-0">
-                  <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                  </svg>
-                </span>
-                <span>召唤心声</span>
-              </span>
-            </button>
-
-            <button
-              onClick={() => router.push('/voices')}
-              className="group relative w-full sm:w-auto px-10 py-4 rounded-full
-                bg-[var(--warm-light)]
-                border-2 border-dashed border-[var(--warm-soft)]
-                text-[var(--text)] font-medium text-base
-                hover:bg-white hover:shadow-[0_4px_12px_rgba(0,0,0,0.04)]
-                hover:-translate-y-0.5
-                transition-all duration-300"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[var(--warm-soft)] shrink-0">
-                  <svg className="w-3.5 h-3.5 text-[var(--pink)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                </span>
-                <span>心声管理</span>
-              </span>
-            </button>
-          </div>
-
-          {/* 按钮下方的提示 */}
-          <p className="mt-4 text-xs text-[var(--text-dim)] animate-soft-rise" style={{ animationDelay: '0.8s' }}>
-            召唤你内心的小人，让它们为你聊聊心里话
-          </p>
-        </section>
-
-        {/* ── 历史对话 ── */}
-        <section className="mt-10">
-          <h2 className="text-xs tracking-[0.25em] text-[var(--text-dim)] mb-4 flex items-center justify-center gap-2">
-            <span className="w-6 h-px bg-[var(--line)]" />
-            对话记录
-            <span className="w-6 h-px bg-[var(--line)]" />
-          </h2>
-
-          {!loaded ? (
-            <div className="text-center text-[var(--text-dim)] py-8 text-sm">加载中...</div>
-          ) : stages.length === 0 ? (
-            <div className="text-center py-10">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--warm-light)] mb-4">
-                <svg className="w-5 h-5 text-[var(--warm)] opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22z" />
-                  <path d="M8 12h8" /><path d="M12 8v8" />
-                </svg>
-              </div>
-              <p className="text-sm text-[var(--text-soft)]">还没有开始过对话呢</p>
-              <p className="text-xs text-[var(--text-dim)] mt-1.5">点击上方「召唤心声」，让内心的小人聊聊你的心事</p>
+          <div className="motion-host host-manage" ref={el => { hostsRef.current[1] = el }}>
+            <div className="art-bg skin-manage-bg" />
+            <div className="art-content" onClick={() => router.push('/voices')}>
+              <h2 className="action-title">心声管理 <span>02.</span></h2>
+              <p className="action-desc">给内心的声音塑形。在此处捏造 Soul 极端的性格刻面，对接大模型底层意识。秩序由你定制。</p>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {stages.map((stage, i) => (
-                <div
-                  key={stage.id}
-                  onClick={() => router.push(`/stage/${stage.id}`)}
-                  className="bg-[var(--card)] border border-[var(--line)] rounded-2xl p-5 shadow-[var(--shadow)] cursor-pointer hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--warm-soft)] transition-all duration-200 animate-fade-in"
-                  style={{ animationDelay: `${i * 0.08}s` }}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-[var(--text)] truncate">{stage.title || stage.background.slice(0, 30) + (stage.background.length > 30 ? '...' : '')}</h3>
-                      {stage.background && (
-                        <p className="text-sm text-[var(--text-soft)] mt-1 line-clamp-1">{stage.background}</p>
-                      )}
-                      <div className="flex items-center gap-3 mt-3">
-                        <span className={`text-xs px-2.5 py-0.5 rounded-full ${statusColor(stage)}`}>
-                          {statusLabel(stage)}
-                        </span>
-                        <span className="text-xs text-[var(--text-dim)]">
-                          {stage.messages.length} 条消息
-                        </span>
-                        <span className="text-xs text-[var(--text-dim)]">
-                          {stage.voices.map((v) => v.name).join(' vs ')}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => handleDelete(stage.id, e)}
-                      className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-dim)] hover:text-[var(--pink)] hover:bg-[var(--pink-soft)] transition-colors"
-                      title="删除"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                      </svg>
-                    </button>
+          </div>
+
+          <div className="motion-host host-history" ref={el => { hostsRef.current[2] = el }} onClick={() => setShowHistory(true)}>
+            <div className="art-bg skin-history-bg" />
+            <div className="art-content">
+              <h2 className="action-title">心路 <span>03.</span></h2>
+              <div className="history-stack-container">
+                <div className="paper-layer layer-3"><div className="paper-layer-bg" /></div>
+                <div className="paper-layer layer-2"><div className="paper-layer-bg" /></div>
+                <div className="paper-layer layer-1">
+                  <div className="paper-layer-bg" />
+                  <div className="paper-layer-content">
+                    <div className="latest-badge">意识切片</div>
+                    <p className="text-[2rem] leading-tight font-medium">在每个十字路口的自我撕扯，在此处凝固为标本。</p>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-        </section>
+            <div className="tape-more-btn">
+              <div className="tape-btn-bg" />
+              <div className="tape-btn-content">翻阅过往心镜</div>
+            </div>
+          </div>
+        </main>
 
-        <footer className="mt-16 pt-6 border-t border-[var(--line)] text-center text-xs text-[var(--text-dim)]">
-          心镜 MindMirror
-        </footer>
+        {showHistory && (
+          <div className="modal-overlay" onClick={() => setShowHistory(false)}>
+            <div className="modal-panel" onClick={e => e.stopPropagation()}>
+              <div className="modal-inner">
+                <div className="modal-header">
+                  <h2>心路历程</h2>
+                  <button className="modal-close" onClick={() => setShowHistory(false)}>✕</button>
+                </div>
+                {recordsList.length === 0 ? (
+                  <div className="empty-msg">还没有内心博弈的记录，去召唤一场吧。</div>
+                ) : (
+                  recordsList.map(r => (
+                    <div className="record-item" key={r.id} onClick={() => { setShowHistory(false); router.push(`/stage/${r.id}`) }}>
+                      <div className="record-info">
+                        <h4>{r.title}</h4>
+                        <div className="record-meta">
+                          <span>{r.badge}</span>
+                          <span>{r.date}</span>
+                          <span>{r.count}条辩论</span>
+                        </div>
+                      </div>
+                      <button className="record-del-btn" onClick={() => { deleteStage(r.id); setRecordsList(prev => prev.filter(x => x.id !== r.id)) }}>删除</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+          <defs>
+            <filter id="torn-heavy">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-medium">
+              <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="5.5" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-title">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-light">
+              <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="2" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-modal">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-modal-title">
+              <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+            <filter id="torn-modal-text">
+              <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="1" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </defs>
+        </svg>
       </div>
-    </div>
+    </>
   )
 }
