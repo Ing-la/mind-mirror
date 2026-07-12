@@ -44,7 +44,7 @@
 
 选择议题、挑选角色、填写各自的立场——然后点击"召唤·让他们聊聊"，一场内心戏剧就此开幕。
 
-![新建舞台](../../screenshots/01-demo-display/04-new-stage.png)
+![新建舞台](../../screenshots/01-demo-display/05-stage-conversation.png)
 
 ---
 
@@ -52,13 +52,13 @@
 
 两个带着独立人格设定和立场的 AI 在你面前自动对话、互相反驳。理性先生说"算一笔账"，冲动崽说"人生又不是 Excel"。你来我往中，每个角度、每个观点、每次反驳都清晰呈现。
 
-![对话剧场](../../screenshots/01-demo-display/05-stage-conversation.png)
+![对话剧场](../../screenshots/01-demo-display/04-new-stage.png)
 
 ---
 
-### 5. 观点摘要（心路窗口）
+### 5. 历史记录（心路窗口）
 
-对话结束后，系统自动提炼双方的核心观点，帮你回顾这场"内心辩论"的关键交锋点。
+回顾所有已完成和进行中的对话舞台，方便随时返回继续之前的内心探索旅程。
 
 ![心路窗口](../../screenshots/01-demo-display/06-mind-window.png)
 

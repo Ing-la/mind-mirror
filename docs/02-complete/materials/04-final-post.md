@@ -38,14 +38,14 @@
 
 **③ 新建对话——搭一座舞台**
 选择议题、挑选角色、填写各自的立场——然后点击"召唤·让他们聊聊"，一场内心戏剧就此开幕。
-![新建舞台](../screenshots/01-demo-display/04-new-stage.png)
+![新建舞台](../screenshots/01-demo-display/05-stage-conversation.png)
 
 **④ 双 AI 对话剧场**
 两个带着独立人格设定和立场的 AI 在你面前自动对话、互相反驳。理性先生说"算一笔账"，冲动崽说"人生又不是 Excel"。你来我往中，每个角度、每个观点、每次反驳都清晰呈现。
-![对话剧场](../screenshots/01-demo-display/05-stage-conversation.png)
+![对话剧场](../screenshots/01-demo-display/04-new-stage.png)
 
-**⑤ 观点摘要（心路窗口）**
-对话结束后，系统自动提炼双方的核心观点，帮你回顾这场"内心辩论"的关键交锋点。
+**⑤ 历史记录（心路窗口）**
+回顾所有已完成和进行中的对话舞台，方便随时返回继续之前的内心探索旅程。
 ![心路窗口](../screenshots/01-demo-display/06-mind-window.png)
 
 ---
@@ -191,6 +191,17 @@ TRAE 的能力不限于生成代码。我们专门创建了名为 "03-UI-design"
 > 报名帖：[心镜 MindMirror —— 把脑袋里的小人具像化](https://forum.trae.cn/t/topic/22549)
 >
 > GitHub 仓库：https://github.com/Ing-la/mind-mirror
+
+---
+
+### 6. 内核设计与 Prompt 工程（拓展阅读）
+
+完整的架构设计和 Prompt 工程方案在 GitHub 仓库中可查阅：
+
+- **[内核设计文档](https://github.com/Ing-la/mind-mirror/blob/main/docs/01-project/内核设计.md)** — 幕/章层级系统、对话交互逻辑、按钮状态机、数据流设计
+- **[提示词设计](https://github.com/Ing-la/mind-mirror/blob/main/docs/01-project/内核设计.md#prompt-%E8%AE%BE%E8%AE%A1)** — System Prompt 编排方式、角色设定构建规则、消息历史格式
+
+核心设计思路：所有角色发言统一标为 `role: "assistant"` 通过 `name` 字段区分，用户插话标为 `role: "user"`。System Prompt 按"你是谁 → 你的性格 → 话题背景 → 用户介入 → 对话规则"的顺序动态编排。
 
 ---
 
