@@ -63,6 +63,8 @@ export default function NewStagePage() {
       status: 'ongoing',
       act: 1,
       actMsgCount: 0,
+      chapter: 1,
+      chapterSummaries: [],
       createdAt: Date.now(),
     }
 
@@ -85,14 +87,19 @@ export default function NewStagePage() {
   ]
 
   return (
-    <div className="redesign-root h-dvh flex flex-col">
+    <div className="redesign-root h-dvh flex flex-col overflow-x-hidden">
       <div className="bg-title">MIND MIRROR</div>
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+      <div className="flex-1 flex flex-col">
         <div className="max-w-xl mx-auto w-full px-6 pb-20">
           {/* Back */}
-          <button onClick={() => router.push('/')}
-            className="torn-back-btn" title="返回">
-            ← 返回
+          <button
+            onClick={() => router.push('/')}
+            className="p-2 rounded-full text-[rgba(230,223,211,0.35)] hover:text-[#e6dfd3] hover:bg-[rgba(230,223,211,0.08)] transition-colors -ml-1"
+            title="返回"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
           </button>
 
           {/* Hero */}

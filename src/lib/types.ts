@@ -44,6 +44,12 @@ export interface Message {
   timestamp: number
 }
 
+export interface ChapterSummary {
+  chapter: number
+  summary: string           // 整章文字总结
+  positions: Record<string, string[]> // voice.name → [观点1, 观点2, ...]
+}
+
 export interface Stage {
   id: string
   title?: string // auto-generated from background, for display
@@ -54,6 +60,8 @@ export interface Stage {
   status: 'ongoing' | 'ended'
   act: number       // 当前幕次（从 1 开始）
   actMsgCount: number // 当前幕已完成的消息数（0-6）
+  chapter: number   // 当前章次（从 1 开始，每 4 幕 +1）
+  chapterSummaries: ChapterSummary[] // 已完成章节的总结
   createdAt: number
 }
 

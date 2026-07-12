@@ -60,9 +60,9 @@ export default function VoicesPage() {
   }
 
   return (
-    <div className="redesign-root h-dvh flex flex-col">
+    <div className="redesign-root h-dvh flex flex-col overflow-x-hidden">
       <div className="bg-title">MIND MIRROR</div>
-    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+    <div className="flex-1 flex flex-col">
       <div className="max-w-xl mx-auto w-full px-6 pb-20">
         <button onClick={() => router.push('/')}
           className="torn-back-btn" title="返回">
