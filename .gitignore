@@ -36,8 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
-# competition raw screenshots
-/docs/02-complete/raw/
+# docs - only keep 01-project
+/docs/00-initial/
+/docs/02-complete/
 
 # typescript
 *.tsbuildinfo
