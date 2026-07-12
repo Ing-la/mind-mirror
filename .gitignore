@@ -36,9 +36,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# docs - only keep 01-project
+# docs - only keep 01-project + 02-complete (for video download)
 /docs/00-initial/
-/docs/02-complete/
 
 # typescript
 *.tsbuildinfo
